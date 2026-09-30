@@ -1,6 +1,6 @@
 # Logistics Platform WZB
 
-A React + TypeScript & FastAPI + PostgreSQL freight marketplace starter template designed for junior developers to practice Clean Architecture and TDD.
+A React + TypeScript & FastAPI + PostgreSQL freight marketplace.
 
 ## Prerequisites
 - Docker & Docker Compose v2
