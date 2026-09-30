@@ -1,10 +1,105 @@
-node_modules/
-dist/
-.venv/
-__pycache__/
-.pytest_cache/
-*.pyc
-*.tsbuildinfo
-.env
+# =========================
+# macOS
+# =========================
 .DS_Store
-repository.bundle
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# =========================
+# Environment / secrets
+# =========================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# =========================
+# React / Node.js
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+dist/
+build/
+.cache/
+.parcel-cache/
+
+# Vite
+.vite/
+
+# Next.js (if ever used)
+.next/
+out/
+
+# Testing / coverage
+coverage/
+.nyc_output/
+
+# =========================
+# Python / FastAPI
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyright/
+.coverage
+coverage.xml
+htmlcov/
+
+# Packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+wheels/
+
+# =========================
+# FastAPI runtime / local data
+# =========================
+*.log
+*.pid
+
+# SQLite / local databases
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================
+# IDE / editors
+# =========================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# =========================
+# Temporary files
+# =========================
+tmp/
+temp/
+.cache/
+
+# =========================
+# Misc
+# =========================
+Thumbs.db
+frontend/tsconfig.tsbuildinfo
