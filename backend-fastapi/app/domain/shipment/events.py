@@ -1,0 +1,7 @@
+PUBLISHED = 'ShipmentPublished'
+ASSIGNED = 'CarrierAssigned'
+STARTED = 'TripStarted'
+ARRIVED = 'ArrivedAtDestination'
+DOCUMENT_UPLOADED = 'DocumentUploaded'
+DELIVERED = 'ShipmentDelivered'
+REVIEWED = 'DriverReviewed'

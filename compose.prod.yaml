@@ -1,0 +1,41 @@
+name: logistics-platform-prod
+
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: parcel_lab
+      POSTGRES_USER: ${POSTGRES_USER:-parcel_lab_prod}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_db_password}
+    volumes:
+      - parcel_postgres:/var/lib/postgresql/data
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-parcel_lab_prod} -d parcel_lab"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend-fastapi
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-parcel_lab_prod}:${POSTGRES_PASSWORD:-secure_db_password}@database:5432/parcel_lab
+      JWT_SECRET: ${JWT_SECRET:-please_change_this_secret_key_in_production}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: always
+
+  nginx:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  parcel_postgres:

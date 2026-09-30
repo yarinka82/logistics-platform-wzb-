@@ -1,0 +1,47 @@
+name: Validate
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: parcel_test
+          POSTGRES_USER: parcel_test
+          POSTGRES_PASSWORD: parcel_test
+        ports:
+          - 16439:5432
+        options: >-
+          --health-cmd "pg_isready -U parcel_test -d parcel_test"
+          --health-interval 3s --health-timeout 3s --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements-dev.txt
+        working-directory: backend-fastapi
+      - run: pytest -q
+        working-directory: backend-fastapi
+        env:
+          TEST_DATABASE_URL: postgresql://parcel_test:parcel_test@localhost:16439/parcel_test
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm test
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend

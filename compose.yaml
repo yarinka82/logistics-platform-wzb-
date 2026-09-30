@@ -1,0 +1,36 @@
+name: logistics-platform-wzb
+
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: parcel_lab
+      POSTGRES_USER: parcel_lab
+      POSTGRES_PASSWORD: parcel_lab_local
+    ports:
+      - "127.0.0.1:16439:5432"
+    volumes:
+      - parcel_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U parcel_lab -d parcel_lab"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  backend:
+    build: ./backend-fastapi
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://parcel_lab:parcel_lab_local@database:5432/parcel_lab
+    ports:
+      - "127.0.0.1:18473:18473"
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:18473/api/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+volumes:
+  parcel_postgres:

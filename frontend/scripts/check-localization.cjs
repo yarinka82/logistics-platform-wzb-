@@ -1,0 +1,12 @@
+// Render real components in both languages without requiring a browser installation.
+const fs=require('fs');const path=require('path');const assert=require('node:assert/strict');const ts=require('typescript');const React=require('react');const {renderToStaticMarkup}=require('react-dom/server');
+for(const extension of ['.ts','.tsx'])require.extensions[extension]=(module,file)=>module._compile(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true,target:ts.ScriptTarget.ES2022}}).outputText,file);
+const storage=new Map();global.localStorage={getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)};global.document={documentElement:{lang:'en'}};global.location={pathname:'/',search:''};
+const {t,setLanguage,locale}=require('../src/i18n.ts');const Auth=require('../src/Auth.tsx').default;const {AdminPanel}=require('../src/AdminPanel.tsx');const Order=require('../src/Order.tsx').default;
+assert.equal(t('Sign in'),'Sign in');assert.equal(locale(),'en-GB');
+const noop=()=>{};const user={id:'user1',role:'ADMIN',name:'Admin',status:'ACTIVE',verification:'APPROVED'};
+setLanguage('de');assert.equal(t('Sign in'),'Anmelden');assert.equal(storage.get('wzb-language'),'de');assert.equal(document.documentElement.lang,'de');
+const auth=renderToStaticMarkup(React.createElement(Auth,{mode:'register',onClose:noop,onLogin:noop}));assert.match(auth,/Registrieren/);assert.match(auth,/Transportunternehmen/);assert.match(auth,/Benutzername/);
+const admin=renderToStaticMarkup(React.createElement(AdminPanel,{user,run:async()=>{},revision:0}));assert.match(admin,/Benutzerverwaltung/);assert.match(admin,/<option value="CUSTOMER">Auftraggeber<\/option>/);assert.match(admin,/<option value="MODERATOR">Moderator<\/option>/);
+const trip=renderToStaticMarkup(React.createElement(Order,{order:{id:'order1',status:'AT_PICKUP',version:5,origin:'Würzburg',destination:'Berlin',cargo:'User cargo text',cargo_type:'Pallets',loading_at:'2026-10-02T10:00:00Z',driver_id:'driver1',documents:[]},user:{...user,id:'driver1',role:'DRIVER'},online:true,busy:false,execute:async()=>{},run:async()=>{},onSignIn:noop}));assert.match(trip,/Frachtbrief fotografieren/);assert.match(trip,/Paletten/);assert.match(trip,/User cargo text/);assert.match(trip,/disabled=""[^>]*>✓ Fahrt abschließen/);
+setLanguage('en');assert.equal(t('Sign in'),'Sign in');console.log('PASS: English default, German forms/admin/trip, stored preference, stable API option values, document gate');
